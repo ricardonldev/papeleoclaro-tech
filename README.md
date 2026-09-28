@@ -30,13 +30,20 @@ The HTML is served from Cloudflare's cache (`CF-Cache-Status: HIT`). The home pa
 - An **XML sitemap** (46 URLs) and a robots.txt that points to it.
 - `lang="es"`, and a mobile-first layout.
 
-## Honest gaps (next improvements)
-- **Security headers:** the site doesn't send `Strict-Transport-Security` or a `Content-Security-Policy` yet. Cloudflare Workers static assets support a `_headers` file, so it's a small change.
-- **Automated tests** for the calculation logic aren't in place yet. The public projects linked below show how I test that kind of logic.
+## Security and testing (added 28 Sep 2026)
+- **Security headers** via a Cloudflare `_headers` file: `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` and `Cross-Origin-Opener-Policy`.
+- **Content-Security-Policy in Report-Only mode.** The site runs AdSense, and a strict CSP can silently block ads, so the policy is observed first and will be enforced once it has run cleanly.
+- **Tested calculation logic:** the late-filing surcharge and rental deposit calculators were refactored into pure TypeScript modules with **15 tests** (`npm test`, Node's built-in runner). The tests cover tax deadlines per form, full months of delay, the 15 % + late-interest threshold, the 25 % reduction and month-end dates.
+- **A real bug found by the tests and fixed:** if the keys were returned on 31 January, the deposit calculator put the interest start date on **3 March** instead of **28 February**, which undercounted the tenant's interest. Now fixed and covered by a test.
+- Lighthouse re-run after the change (mobile): 97 home / 96 tool page, and 100 in accessibility, best practices and SEO. Nothing regressed.
+
+## Next improvements
+- Enforce the CSP once it has run in report-only mode without warnings.
+- Extend the tests to the remaining calculators.
 
 ## Related work
 - [ai-app-rescue-case-study](https://github.com/ricardonldev/ai-app-rescue-case-study): securing and shipping an AI-generated Supabase app.
 - [whatsapp-cost-calculator](https://github.com/ricardonldev/whatsapp-cost-calculator): pricing rules as tested pure functions ([live](https://ricardonldev.github.io/whatsapp-cost-calculator/)).
 
 ---
-🇪🇸 **Resumen:** web de calculadoras y guías de trámites en español, hecha con Astro 7, Tailwind 4 y Cloudflare Workers (estática). Lighthouse medido el 28/09/2026: rendimiento de 96-100 y 100 en accesibilidad, buenas prácticas y SEO. Tiene 43 herramientas, parte de ellas generadas a partir de datos; datos estructurados en cada página; y PWA. Pendiente: cabeceras de seguridad y tests automáticos.
+🇪🇸 **Resumen:** web de calculadoras y guías de trámites en español, hecha con Astro 7, Tailwind 4 y Cloudflare Workers (estática). Lighthouse medido el 28/09/2026: rendimiento de 96-100 y 100 en accesibilidad, buenas prácticas y SEO. Tiene 43 herramientas, parte de ellas generadas a partir de datos; datos estructurados en cada página; y PWA. Añadido el 28/09/2026: cabeceras de seguridad (CSP en modo observación por AdSense) y 15 tests en dos calculadoras, que destaparon y permitieron corregir un fallo real de fechas en la de la fianza.
